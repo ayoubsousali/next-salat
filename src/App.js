@@ -1,12 +1,12 @@
 import Layout from './components/common/layout';
-import SelectCities from './components/SelectCities';
+import Main from './components/Main';
 
 function App() {
   return (
     <Layout>
       <div className="my-8">
         <p>next salat</p>
-        <SelectCities />
+        <Main />
       </div>
     </Layout>
   );
