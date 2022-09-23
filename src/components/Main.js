@@ -6,7 +6,13 @@ export default function Main() {
   const [prayers, setPrayers] = useState({});
 
   const date = new Date();
-  const dateFormatted = new Intl.DateTimeFormat('fr-MA').format(date);
+  const options = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  };
+  const dateFormatted = new Intl.DateTimeFormat('ar-MA', options).format(date);
 
   return (
     <main>
