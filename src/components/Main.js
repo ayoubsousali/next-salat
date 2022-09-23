@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Prayer from './Prayer';
 import SelectCities from './SelectCities';
 
 export default function Main() {
@@ -6,16 +7,13 @@ export default function Main() {
 
   return (
     <main>
-      <h1>Prayers Times</h1>
       <SelectCities setPrayers={setPrayers} />
-      <ul>
-        <li>{prayers.Fajr} :الفجر</li>
-        <li>{prayers.Chorouq} :الشروق</li>
-        <li>{prayers.Dhuhr} :الظهر</li>
-        <li>{prayers.Asr} :العصر</li>
-        <li>{prayers.Maghrib} :المغرب</li>
-        <li>{prayers.Ishae} :العشاء</li>
-      </ul>
+      <Prayer name="الفجر" time={prayers.Fajr} />
+      <Prayer name="الشروق" time={prayers.Chorouq} />
+      <Prayer name="الظهر" time={prayers.Dhuhr} />
+      <Prayer name="العصر" time={prayers.Asr} />
+      <Prayer name="المغرب" time={prayers.Maghrib} />
+      <Prayer name="العشاء" time={prayers.Ishae} />
     </main>
   );
 }

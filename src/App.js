@@ -4,8 +4,7 @@ import Main from './components/Main';
 function App() {
   return (
     <Layout>
-      <div className="my-8">
-        <p>next salat</p>
+      <div className="m-8 flex justify-center">
         <Main />
       </div>
     </Layout>
