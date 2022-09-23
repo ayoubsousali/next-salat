@@ -16,7 +16,10 @@ export default function SelectCities({ setPrayers }) {
     })
       .then((response) => response.json())
       .then((data) => {
-        setCities(data);
+        const sorted = data
+          .map((city) => ({ id: city.id, name: city.name }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+        setCities(sorted);
       });
   };
 
