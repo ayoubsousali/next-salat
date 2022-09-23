@@ -7,6 +7,7 @@ export default function Main() {
 
   return (
     <main>
+      <h1 className="text-center text-3xl p-4">أوقات الصلاة بالمغرب</h1>
       <SelectCities setPrayers={setPrayers} />
       <Prayer name="الفجر" time={prayers.Fajr} />
       <Prayer name="الشروق" time={prayers.Chorouq} />

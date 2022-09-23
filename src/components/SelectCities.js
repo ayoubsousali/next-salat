@@ -51,7 +51,7 @@ export default function SelectCities({ setPrayers }) {
   }, [selectedOption, getPrayersTimes]);
 
   return (
-    <div className="relative inline-flex self-center">
+    <div className="flex justify-center">
       <select
         value={selectedOption}
         onChange={(e) => handleChange(e.target.value, setSelectedOption)}
