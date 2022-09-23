@@ -3,7 +3,9 @@ module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
-      fontFamily: {},
+      fontFamily: {
+        serif: 'Noto Naskh Arabic, serif',
+      },
       colors: {},
     },
   },
