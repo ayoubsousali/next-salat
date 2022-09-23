@@ -6,7 +6,12 @@ module.exports = {
       fontFamily: {
         serif: 'Noto Naskh Arabic, serif',
       },
-      colors: {},
+      colors: {
+        dark: '#121212',
+        dark2: '#424242',
+        light: '#DEE4E7',
+        light2: '#EEE',
+      },
     },
   },
   plugins: [],
