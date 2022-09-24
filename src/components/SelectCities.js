@@ -66,7 +66,7 @@ export default function SelectCities({ setPrayers }) {
       <select
         value={selectedOption}
         onChange={(e) => handleChange(e.target.value, setSelectedOption)}
-        className="text-xl rounded border-2 h-14 dark:border-light border-dark dark:bg-dark2 bg-light2 dark:text-light text-dark p-2 m-2 dark:focus:border-light2 focus:border-dark2 dark:hover:border-light2 hover:border-dark2"
+        className="text-xl border-b-2 w-full h-14 dark:border-light border-dark dark:bg-dark2 bg-light2 dark:text-light text-dark p-2 m-2 dark:focus:border-light2 focus:border-dark2 dark:hover:border-light2 hover:border-dark2"
       >
         {cities &&
           cities.length > 0 &&

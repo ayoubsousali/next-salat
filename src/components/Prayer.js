@@ -5,8 +5,10 @@ export default function Prayer({ name, time, isNext }) {
   return (
     <div
       className={`${
-        isNext ? 'bg-red-500' : ''
-      } flex border-2 dark:border-light border-dark rounded justify-items-center justify-evenly	p-2 m-2 max-w-[500px] dark:text-light text-dark`}
+        isNext
+          ? 'dark:border-red-500 border-border-red-500 border-b-4 dark:text-red-500 text-red-500'
+          : 'dark:border-light border-dark border-b-2 dark:text-light text-dark'
+      } flex justify-items-center justify-evenly	p-2 m-2 max-w-[600px]`}
     >
       <span>{arabicName(name)}</span>
       <span>{time}</span>
