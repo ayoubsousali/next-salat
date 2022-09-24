@@ -46,12 +46,20 @@ export default function SelectCities({ setPrayers }) {
   const handleChange = (value, selectOptionSetter) => {
     selectOptionSetter(value);
     getPrayersTimes(value);
+    localStorage.setItem('savedCity', JSON.stringify(value));
   };
 
   useEffect(() => {
     getCities();
     getPrayersTimes(selectedOption);
   }, [selectedOption, getPrayersTimes]);
+
+  useEffect(() => {
+    const savedCity = JSON.parse(localStorage.getItem('savedCity'));
+    if (savedCity) {
+      setSelectedOption(savedCity);
+    }
+  }, []);
 
   return (
     <div className="flex justify-center">
