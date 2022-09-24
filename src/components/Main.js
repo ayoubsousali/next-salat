@@ -14,7 +14,7 @@ export default function Main() {
 
     return dayjs(`${dateToday} ${prayer[1]}`).isAfter(time);
   });
-  const nextPrayer = nextPrayers.length > 0 ? nextPrayers[0] : prayers[0];
+  const nextPrayer = nextPrayers.length > 0 ? nextPrayers[0] : prayersArr[0];
 
   const date = new Date();
   const options = {
