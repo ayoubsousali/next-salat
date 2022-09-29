@@ -8,7 +8,7 @@ export default function SelectCities({ setPrayers }) {
   const API = process.env.REACT_APP_API_SALAT;
 
   const getCities = () => {
-    fetch('morocco-cities.json', {
+    fetch('cities.json', {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
@@ -23,12 +23,8 @@ export default function SelectCities({ setPrayers }) {
       });
   };
 
-  const getPrayersTimes = useCallback(
-    (cityId) => {
-      const today = new Date();
-      const month = today.getMonth() + 1;
-      const day = today.getDate();
-
+  const fetchMoroccoTimes = useCallback(
+    (cityId, month, day) => {
       fetch(`${API}${cityId}/${month}/${day}`, {
         headers: {
           'Content-Type': 'application/json',
@@ -41,6 +37,16 @@ export default function SelectCities({ setPrayers }) {
         });
     },
     [API, setPrayers]
+  );
+
+  const getPrayersTimes = useCallback(
+    (cityId) => {
+      const today = new Date();
+      const month = today.getMonth() + 1;
+      const day = today.getDate();
+      fetchMoroccoTimes(cityId, month, day);
+    },
+    [fetchMoroccoTimes]
   );
 
   const handleChange = (value, selectOptionSetter) => {
