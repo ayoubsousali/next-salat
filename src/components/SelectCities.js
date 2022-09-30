@@ -1,11 +1,13 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState, useCallback } from 'react';
+import dayjs from 'dayjs';
 
 export default function SelectCities({ setPrayers }) {
   const [cities, setCities] = useState([]);
   const [selectedOption, setSelectedOption] = useState(1);
 
   const API = process.env.REACT_APP_API_SALAT;
+  const API2 = process.env.REACT_APP_API_SALAT2;
 
   const getCities = () => {
     fetch('cities.json', {
@@ -17,7 +19,12 @@ export default function SelectCities({ setPrayers }) {
       .then((response) => response.json())
       .then((data) => {
         const sorted = data
-          .map((city) => ({ id: city.id, name: city.name }))
+          .map((city) => ({
+            id: city.id,
+            name: city.name,
+            lat: city?.lat,
+            lng: city?.lng,
+          }))
           .sort((a, b) => a.name.localeCompare(b.name));
         setCities(sorted);
       });
@@ -39,14 +46,53 @@ export default function SelectCities({ setPrayers }) {
     [API, setPrayers]
   );
 
+  const getLatLng = (citiesArr, cityId) =>
+    // eslint-disable-next-line eqeqeq
+    citiesArr.find((city) => parseInt(city.id) === cityId);
+
+  const fetchOthersTimes = useCallback(
+    (cityId, month, day, year) => {
+      const city = getLatLng(cities, parseInt(cityId));
+      console.log('cityId');
+      console.log(cityId);
+      console.log('city');
+      console.log(city);
+
+      const dateToday = dayjs(`${year}-${month}-${day}`).format('DD-MM-YYYY');
+      if (city.lat !== undefined && city.lng !== undefined) {
+        fetch(
+          `${API2}${dateToday}?latitude=${city?.lat}&longitude=${city?.lng}&method=12`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+          }
+        ).then((response) => {
+          console.log(response.json());
+        });
+        // .then((data) => {
+        //   setPrayers(data[0]);
+        // });
+      }
+    },
+    [cities, API2]
+  );
+
   const getPrayersTimes = useCallback(
     (cityId) => {
       const today = new Date();
       const month = today.getMonth() + 1;
       const day = today.getDate();
-      fetchMoroccoTimes(cityId, month, day);
+      const year = today.getFullYear();
+
+      if (parseInt(cityId) < 9000) {
+        fetchMoroccoTimes(parseInt(cityId), month, day);
+      } else {
+        fetchOthersTimes(parseInt(cityId), month, day, year);
+      }
     },
-    [fetchMoroccoTimes]
+    [fetchMoroccoTimes, fetchOthersTimes]
   );
 
   const handleChange = (value, selectOptionSetter) => {
@@ -58,7 +104,7 @@ export default function SelectCities({ setPrayers }) {
   useEffect(() => {
     getCities();
     getPrayersTimes(selectedOption);
-  }, [selectedOption, getPrayersTimes]);
+  }, []);
 
   useEffect(() => {
     const savedCity = JSON.parse(localStorage.getItem('savedCity'));
