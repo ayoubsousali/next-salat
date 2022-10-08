@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { useEffect, useState, useCallback } from 'react';
 import dayjs from 'dayjs';
@@ -47,33 +48,30 @@ export default function SelectCities({ setPrayers }) {
   );
 
   const getLatLng = (citiesArr, cityId) =>
-    // eslint-disable-next-line eqeqeq
     citiesArr.find((city) => parseInt(city.id) === cityId);
 
   const fetchOthersTimes = useCallback(
     (cityId, month, day, year) => {
       const city = getLatLng(cities, parseInt(cityId));
-      console.log('cityId');
-      console.log(cityId);
-      console.log('city');
-      console.log(city);
 
       const dateToday = dayjs(`${year}-${month}-${day}`).format('DD-MM-YYYY');
       if (city.lat !== undefined && city.lng !== undefined) {
         fetch(
-          `${API2}${dateToday}?latitude=${city?.lat}&longitude=${city?.lng}&method=12`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-            },
-          }
-        ).then((response) => {
-          console.log(response.json());
-        });
-        // .then((data) => {
-        //   setPrayers(data[0]);
-        // });
+          `${API2}${dateToday}?latitude=${city?.lat}&longitude=${city?.lng}&method=12`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            const { timings } = data.data;
+            const prayers = {
+              Fajr: timings.Fajr,
+              Sunrise: timings.Sunrise,
+              Dhuhr: timings.Dhuhr,
+              Asr: timings.Asr,
+              Maghrib: timings.Maghrib,
+              Isha: timings.Isha,
+            };
+            setPrayers(prayers);
+          });
       }
     },
     [cities, API2]
