@@ -7,7 +7,6 @@ export default function SelectCities({ setPrayers }) {
   const [cities, setCities] = useState([]);
   const [selectedOption, setSelectedOption] = useState('9002');
 
-  // const API = process.env.REACT_APP_API_SALAT;
   const API2 = process.env.REACT_APP_API_SALAT2;
 
   const getCities = () => {
@@ -31,26 +30,15 @@ export default function SelectCities({ setPrayers }) {
       });
   };
 
-  // const fetchMoroccoTimes = useCallback(
-  //   (cityId, month, day) => {
-  //     fetch(`${API}${cityId}/${month}/${day}`, {
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         Accept: 'application/json',
-  //       },
-  //     })
-  //       .then((response) => response.json())
-  //       .then((data) => {
-  //         setPrayers(data[0]);
-  //       });
-  //   },
-  //   [API, setPrayers]
-  // );
-
   const getLatLng = (citiesArr, cityId) =>
     citiesArr.find((city) => parseInt(city.id) === cityId);
 
-  const fetchOthersTimes = (cityId, month, day, year) => {
+  const fetchTodayTimes = (cityId) => {
+    const today = new Date();
+    const month = today.getMonth() + 1;
+    const day = today.getDate();
+    const year = today.getFullYear();
+
     const city = getLatLng(cities, parseInt(cityId));
 
     const dateToday = dayjs(`${year}-${month}-${day}`).format('DD-MM-YYYY');
@@ -79,25 +67,17 @@ export default function SelectCities({ setPrayers }) {
     }
   };
 
-  const getPrayersTimes = (cityId) => {
-    const today = new Date();
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
-    const year = today.getFullYear();
-
-    fetchOthersTimes(parseInt(cityId), month, day, year);
-  };
-
   const handleChange = (value, selectOptionSetter) => {
     selectOptionSetter(value);
-    getPrayersTimes(value);
+    fetchTodayTimes(value);
     localStorage.setItem('savedCity', JSON.stringify(value));
   };
 
   useEffect(() => {
-    console.log('selectedOption');
-    console.log(selectedOption);
-    getPrayersTimes(selectedOption);
+    fetchTodayTimes(selectedOption);
+  }, [cities]);
+
+  useEffect(() => {
     getCities();
   }, []);
 
