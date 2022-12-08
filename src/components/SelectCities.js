@@ -1,13 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 
 export default function SelectCities({ setPrayers }) {
   const [cities, setCities] = useState([]);
-  const [selectedOption, setSelectedOption] = useState(1);
+  const [selectedOption, setSelectedOption] = useState('9002');
 
-  const API = process.env.REACT_APP_API_SALAT;
+  // const API = process.env.REACT_APP_API_SALAT;
   const API2 = process.env.REACT_APP_API_SALAT2;
 
   const getCities = () => {
@@ -21,8 +21,8 @@ export default function SelectCities({ setPrayers }) {
       .then((data) => {
         const sorted = data
           .map((city) => ({
-            id: city.id,
-            name: city.name,
+            id: city?.id,
+            name: city?.name,
             lat: city?.lat,
             lng: city?.lng,
           }))
@@ -31,67 +31,62 @@ export default function SelectCities({ setPrayers }) {
       });
   };
 
-  const fetchMoroccoTimes = useCallback(
-    (cityId, month, day) => {
-      fetch(`${API}${cityId}/${month}/${day}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          setPrayers(data[0]);
-        });
-    },
-    [API, setPrayers]
-  );
+  // const fetchMoroccoTimes = useCallback(
+  //   (cityId, month, day) => {
+  //     fetch(`${API}${cityId}/${month}/${day}`, {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Accept: 'application/json',
+  //       },
+  //     })
+  //       .then((response) => response.json())
+  //       .then((data) => {
+  //         setPrayers(data[0]);
+  //       });
+  //   },
+  //   [API, setPrayers]
+  // );
 
   const getLatLng = (citiesArr, cityId) =>
     citiesArr.find((city) => parseInt(city.id) === cityId);
 
-  const fetchOthersTimes = useCallback(
-    (cityId, month, day, year) => {
-      const city = getLatLng(cities, parseInt(cityId));
+  const fetchOthersTimes = (cityId, month, day, year) => {
+    const city = getLatLng(cities, parseInt(cityId));
 
-      const dateToday = dayjs(`${year}-${month}-${day}`).format('DD-MM-YYYY');
-      if (city.lat !== undefined && city.lng !== undefined) {
-        fetch(
-          `${API2}${dateToday}?latitude=${city?.lat}&longitude=${city?.lng}&method=12`
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            const { timings } = data.data;
-            const prayers = {
-              Fajr: timings.Fajr,
-              Sunrise: timings.Sunrise,
-              Dhuhr: timings.Dhuhr,
-              Asr: timings.Asr,
-              Maghrib: timings.Maghrib,
-              Isha: timings.Isha,
-            };
-            setPrayers(prayers);
-          });
-      }
-    },
-    [cities, API2]
-  );
+    const dateToday = dayjs(`${year}-${month}-${day}`).format('DD-MM-YYYY');
 
-  const getPrayersTimes = useCallback(
-    (cityId) => {
-      const today = new Date();
-      const month = today.getMonth() + 1;
-      const day = today.getDate();
-      const year = today.getFullYear();
+    if (
+      city !== undefined &&
+      city.lat !== undefined &&
+      city.lng !== undefined
+    ) {
+      fetch(
+        `${API2}${dateToday}?latitude=${city?.lat}&longitude=${city?.lng}&method=12`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          const { timings } = data.data;
+          const prayers = {
+            Fajr: timings.Fajr,
+            Sunrise: timings.Sunrise,
+            Dhuhr: timings.Dhuhr,
+            Asr: timings.Asr,
+            Maghrib: timings.Maghrib,
+            Isha: timings.Isha,
+          };
+          setPrayers(prayers);
+        });
+    }
+  };
 
-      if (parseInt(cityId) < 9000) {
-        fetchMoroccoTimes(parseInt(cityId), month, day);
-      } else {
-        fetchOthersTimes(parseInt(cityId), month, day, year);
-      }
-    },
-    [fetchMoroccoTimes, fetchOthersTimes]
-  );
+  const getPrayersTimes = (cityId) => {
+    const today = new Date();
+    const month = today.getMonth() + 1;
+    const day = today.getDate();
+    const year = today.getFullYear();
+
+    fetchOthersTimes(parseInt(cityId), month, day, year);
+  };
 
   const handleChange = (value, selectOptionSetter) => {
     selectOptionSetter(value);
@@ -100,8 +95,10 @@ export default function SelectCities({ setPrayers }) {
   };
 
   useEffect(() => {
-    getCities();
+    console.log('selectedOption');
+    console.log(selectedOption);
     getPrayersTimes(selectedOption);
+    getCities();
   }, []);
 
   useEffect(() => {
