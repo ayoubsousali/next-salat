@@ -8,6 +8,7 @@ export default function SelectCities({ setPrayers }) {
   const [selectedOption, setSelectedOption] = useState('9002');
 
   const API2 = process.env.REACT_APP_API_SALAT2;
+  const method = 4; // Umm Al-Qura University, Makkah
 
   const getCities = () => {
     fetch('cities.json', {
@@ -49,7 +50,7 @@ export default function SelectCities({ setPrayers }) {
       city.lng !== undefined
     ) {
       fetch(
-        `${API2}${dateToday}?latitude=${city?.lat}&longitude=${city?.lng}&method=12`
+        `${API2}${dateToday}?latitude=${city?.lat}&longitude=${city?.lng}&method=${method}`
       )
         .then((response) => response.json())
         .then((data) => {
