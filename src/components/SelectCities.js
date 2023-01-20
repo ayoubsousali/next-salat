@@ -42,6 +42,7 @@ export default function SelectCities({ setPrayers }) {
     citiesArr.find((city) => parseInt(city.id) === cityId);
 
   const fetchTodayTimes = (cityId) => {
+    setPrayers([]);
     const today = new Date();
     const month = today.getMonth() + 1;
     const day = today.getDate();
