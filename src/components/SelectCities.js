@@ -62,15 +62,17 @@ export default function SelectCities({ setPrayers }) {
         .get()
         .json((json) => {
           const { timings } = json.data;
-          const prayers = {
-            Fajr: timings.Fajr,
-            Sunrise: timings.Sunrise,
-            Dhuhr: timings.Dhuhr,
-            Asr: timings.Asr,
-            Maghrib: timings.Maghrib,
-            Isha: timings.Isha,
-          };
-          setPrayers(prayers);
+          if (timings) {
+            const prayers = {
+              Fajr: timings.Fajr,
+              Sunrise: timings.Sunrise,
+              Dhuhr: timings.Dhuhr,
+              Asr: timings.Asr,
+              Maghrib: timings.Maghrib,
+              Isha: timings.Isha,
+            };
+            setPrayers(prayers);
+          }
         });
     }
   };

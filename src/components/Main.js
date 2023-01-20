@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import Spinner from './common/spinner';
 import Prayer from './Prayer';
 import SelectCities from './SelectCities';
 
@@ -30,8 +31,7 @@ export default function Main() {
       <h1 className="text-center text-3xl p-4">أوقات الصلاة بالمغرب</h1>
       <h2 className="text-center text-xl p-2">ليوم {dateFormatted}</h2>
       <SelectCities setPrayers={setPrayers} />
-      {prayersArr &&
-        prayersArr.length > 0 &&
+      {prayersArr && prayersArr.length > 0 ? (
         prayersArr.map((prayer) => (
           <Prayer
             key={prayer[0]}
@@ -39,7 +39,10 @@ export default function Main() {
             time={prayer[1]}
             isNext={prayer[0] === nextPrayer[0]}
           />
-        ))}
+        ))
+      ) : (
+        <Spinner />
+      )}
     </main>
   );
 }
