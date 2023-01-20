@@ -2,6 +2,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
+import wretch from 'wretch';
 
 export default function SelectCities({ setPrayers }) {
   const [cities, setCities] = useState([]);
@@ -22,15 +23,10 @@ export default function SelectCities({ setPrayers }) {
   };
 
   const getCities = () => {
-    fetch('cities.json', {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const sorted = data
+    wretch('cities.json')
+      .get()
+      .json((json) => {
+        const sorted = json
           .map((city) => ({
             id: city?.id,
             name: city?.name,
@@ -60,12 +56,12 @@ export default function SelectCities({ setPrayers }) {
       city.lat !== undefined &&
       city.lng !== undefined
     ) {
-      fetch(
+      wretch(
         `${API2}${dateToday}?latitude=${city?.lat}&longitude=${city?.lng}&method=${method}&tune=${tune.Imsak},${tune.Fajr},${tune.Sunrise},${tune.Dhuhr},${tune.Asr},${tune.Maghrib},${tune.Sunset},${tune.Isha},${tune.Midnight}`
       )
-        .then((response) => response.json())
-        .then((data) => {
-          const { timings } = data.data;
+        .get()
+        .json((json) => {
+          const { timings } = json.data;
           const prayers = {
             Fajr: timings.Fajr,
             Sunrise: timings.Sunrise,
