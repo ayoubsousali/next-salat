@@ -52,14 +52,19 @@ export default function SelectCities({ setPrayers }) {
 
     const dateToday = dayjs(`${year}-${month}-${day}`).format('DD-MM-YYYY');
 
+    const tuneParams = `${tune.Imsak},${tune.Fajr},${tune.Sunrise},${tune.Dhuhr},${tune.Asr},${tune.Maghrib},${tune.Sunset},${tune.Isha},${tune.Midnight}`;
+    const url = new URL(`${API2}${dateToday}`);
+    url.searchParams.set('latitude', city?.lat);
+    url.searchParams.set('longitude', city?.lng);
+    url.searchParams.set('method', method);
+    url.searchParams.set('tune', tuneParams);
+
     if (
       city !== undefined &&
       city.lat !== undefined &&
       city.lng !== undefined
     ) {
-      wretch(
-        `${API2}${dateToday}?latitude=${city?.lat}&longitude=${city?.lng}&method=${method}&tune=${tune.Imsak},${tune.Fajr},${tune.Sunrise},${tune.Dhuhr},${tune.Asr},${tune.Maghrib},${tune.Sunset},${tune.Isha},${tune.Midnight}`
-      )
+      wretch(url.toString())
         .get()
         .json((json) => {
           const { timings } = json.data;
