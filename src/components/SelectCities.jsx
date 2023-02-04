@@ -8,7 +8,7 @@ export default function SelectCities({ setPrayers }) {
   const [cities, setCities] = useState([]);
   const [selectedOption, setSelectedOption] = useState('9002');
 
-  const API2 = process.env.REACT_APP_API_SALAT2;
+  const API2 = import.meta.env.VITE_API_SALAT2;
   const method = 3; // MWL: Muslim World League
   const tune = {
     Imsak: 0,
