@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        serif: 'Noto Naskh Arabic, serif',
+        serif: 'kufam, serif',
       },
       colors: {
         dark: '#121212',
