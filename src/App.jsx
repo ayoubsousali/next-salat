@@ -6,7 +6,7 @@ function App() {
   return (
     <Layout>
       <DarkModeToggle />
-      <div className="m-8 flex justify-center">
+      <div className="mx-8 flex justify-center">
         <Main />
       </div>
     </Layout>

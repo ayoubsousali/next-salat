@@ -28,7 +28,7 @@ export default function Main() {
 
   return (
     <main>
-      <h1 className="text-center text-3xl p-4">أوقات الصلاة بالمغرب</h1>
+      <h1 className="text-center text-2xl p-3">أوقات الصلاة بالمغرب</h1>
       <h2 className="text-center text-xl p-2">ليوم {dateFormatted}</h2>
       <SelectCities setPrayers={setPrayers} />
       {prayersArr && prayersArr.length > 0 ? (
