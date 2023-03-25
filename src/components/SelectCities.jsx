@@ -12,11 +12,11 @@ export default function SelectCities({ setPrayers }) {
   const method = 3; // MWL: Muslim World League
   const tune = {
     Imsak: 0,
-    Fajr: -5,
+    Fajr: -6,
     Sunrise: -3,
     Dhuhr: 5,
-    Asr: 1,
-    Maghrib: 4,
+    Asr: 0,
+    Maghrib: 3,
     Sunset: 0,
     Isha: 0,
     Midnight: 0,
