@@ -28,8 +28,8 @@ export default function Prayer({ name, time, isNext }) {
           : normalStyle
           } flex justify-items-center justify-between max-w-[600px]`}
       >
-        <span>{arabicName(name)}</span>
-        <span className="font-semibold">{time}</span>
+        <span className="text-lg">{arabicName(name)}</span>
+        <span className="text-lg">{time}</span>
       </div>
 
       {
