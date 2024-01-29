@@ -18,8 +18,18 @@ export default function DarkModeToggle() {
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
+
+      let themeColorMeta = document.querySelector("meta[name=theme-color]");
+      if (themeColorMeta) {
+          themeColorMeta.setAttribute("content", "#121212");
+      }
     } else {
       document.documentElement.classList.remove('dark');
+
+      let themeColorMeta = document.querySelector("meta[name=theme-color]");
+      if (themeColorMeta) {
+          themeColorMeta.setAttribute("content", "#DEE4E7");
+      }
     }
   }, [theme]);
 
