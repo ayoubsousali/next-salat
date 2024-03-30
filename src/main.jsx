@@ -4,23 +4,18 @@ import App from "./App";
 import "./index.css";
 import { inject } from "@vercel/analytics";
 
-inject();
+import { registerSW } from "virtual:pwa-register";
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/service-worker.js")
-      .then((registration) => {
-        console.log(
-          "Service Worker registered with scope:",
-          registration.scope,
-        );
-      })
-      .catch((error) => {
-        console.log("Service Worker registration failed:", error);
-      });
-  });
-}
+// add this to prompt for a refresh
+const updateSW = registerSW({
+  onNeedRefresh() {
+    if (confirm("New content available. Reload?")) {
+      updateSW(true);
+    }
+  },
+});
+
+inject();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
