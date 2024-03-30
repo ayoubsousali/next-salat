@@ -1,9 +1,12 @@
-@import url(https://fonts.bunny.net/css?family=kufam:400);
+@font-face {
+  font-family: "kufam";
+  src: url("/kufam.ttf") format("truetype");
+  font-weight: 400;
+}
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 
 select {
   -webkit-appearance: none;

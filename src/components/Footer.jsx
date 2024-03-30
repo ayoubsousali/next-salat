@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="p-2 max-w-screen">
+    <footer className="p-8 max-w-screen">
       <div className="flex justify-center">
         <a
           href="https://github.com/ayoubsousali/next-salat"
