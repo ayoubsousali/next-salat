@@ -1,6 +1,6 @@
 {
   "name": "Salat",
-  "short_name": "PWA",
+  "short_name": "Salat",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
