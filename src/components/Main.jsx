@@ -3,6 +3,7 @@ import { useState } from "react";
 import Spinner from "./common/spinner";
 import Prayer from "./Prayer";
 import SelectCities from "./SelectCities";
+import PullToRefresh from "./common/pullToRefresh";
 
 export default function Main() {
   const [prayers, setPrayers] = useState({});
@@ -28,6 +29,7 @@ export default function Main() {
 
   return (
     <main>
+      <PullToRefresh />
       <h1 className="text-center text-2xl p-3">أوقات الصلاة بالمغرب</h1>
       <h2 className="text-center text-xl p-2">ليوم {dateFormatted}</h2>
       <SelectCities setPrayers={setPrayers} />
