@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Spinner from "./spinner";
 
-const PullToRefresh = ({ thresholdDistance = 50 }) => {
+const PullToRefresh = ({ thresholdDistance = 70 }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [startY, setStartY] = useState(null);
 
