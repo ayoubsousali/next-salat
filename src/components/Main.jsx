@@ -1,8 +1,8 @@
-import dayjs from 'dayjs';
-import { useState } from 'react';
-import Spinner from './common/spinner';
-import Prayer from './Prayer';
-import SelectCities from './SelectCities';
+import dayjs from "dayjs";
+import { useState } from "react";
+import Spinner from "./common/spinner";
+import Prayer from "./Prayer";
+import SelectCities from "./SelectCities";
 
 export default function Main() {
   const [prayers, setPrayers] = useState({});
@@ -11,7 +11,7 @@ export default function Main() {
 
   const nextPrayers = prayersArr.filter((prayer) => {
     const time = dayjs();
-    const dateToday = dayjs().format('YYYY-MM-DD');
+    const dateToday = dayjs().format("YYYY-MM-DD");
 
     return dayjs(`${dateToday} ${prayer[1]}`).isAfter(time);
   });
@@ -19,12 +19,12 @@ export default function Main() {
 
   const date = new Date();
   const options = {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   };
-  const dateFormatted = new Intl.DateTimeFormat('ar-MA', options).format(date);
+  const dateFormatted = new Intl.DateTimeFormat("ar-MA", options).format(date);
 
   return (
     <main>
