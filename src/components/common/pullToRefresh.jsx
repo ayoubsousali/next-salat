@@ -1,21 +1,37 @@
 import { useEffect, useState } from "react";
 import Spinner from "./spinner";
 
-const PullToRefresh = () => {
+const PullToRefresh = ({ thresholdDistance = 50 }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [startY, setStartY] = useState(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY <= 0) {
+    const handleTouchStart = (event) => {
+      setStartY(event.touches[0].clientY);
+    };
+
+    const handleTouchMove = (event) => {
+      const distance = event.touches[0].clientY - startY;
+      if (distance >= thresholdDistance) {
         setIsRefreshing(true);
         window.location.reload();
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    const handleTouchEnd = () => {
+      setStartY(null);
+    };
 
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    window.addEventListener("touchstart", handleTouchStart);
+    window.addEventListener("touchmove", handleTouchMove);
+    window.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [startY, thresholdDistance]);
 
   return isRefreshing ? <Spinner /> : null;
 };
