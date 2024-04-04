@@ -8,6 +8,12 @@ import PullToRefresh from "./common/pullToRefresh";
 export default function Main() {
   const [prayers, setPrayers] = useState({});
 
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleRefresh = () => {
+    setRefreshKey((prevKey) => prevKey + 1);
+  };
+
   const prayersArr = Object.entries(prayers);
 
   const nextPrayers = prayersArr.filter((prayer) => {
@@ -28,8 +34,8 @@ export default function Main() {
   const dateFormatted = new Intl.DateTimeFormat("ar-MA", options).format(date);
 
   return (
-    <main>
-      <PullToRefresh />
+    <main key={refreshKey}>
+      <PullToRefresh onRefresh={handleRefresh} />
       <h1 className="text-center text-2xl p-3">أوقات الصلاة بالمغرب</h1>
       <h2 className="text-center text-xl p-2">ليوم {dateFormatted}</h2>
       <SelectCities setPrayers={setPrayers} />
