@@ -1,12 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from 'react';
-import dayjs from 'dayjs';
-import wretch from 'wretch';
+import { useEffect, useState } from "react";
+import dayjs from "dayjs";
+import wretch from "wretch";
 
 export default function SelectCities({ setPrayers }) {
   const [cities, setCities] = useState([]);
-  const [selectedOption, setSelectedOption] = useState('9002');
+  const [selectedOption, setSelectedOption] = useState("9002");
 
   const API2 = import.meta.env.VITE_API_SALAT2;
   const method = 3; // MWL: Muslim World League
@@ -23,7 +23,7 @@ export default function SelectCities({ setPrayers }) {
   };
 
   const getCities = () => {
-    wretch('cities.json')
+    wretch("cities.json")
       .get()
       .json((json) => {
         const sorted = json
@@ -41,52 +41,62 @@ export default function SelectCities({ setPrayers }) {
   const getLatLng = (citiesArr, cityId) =>
     citiesArr.find((city) => parseInt(city.id) === cityId);
 
-  const fetchTodayTimes = (cityId) => {
-    setPrayers([]);
-    const today = new Date();
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
-    const year = today.getFullYear();
+  const fetchTodayTimes = async (cityId) => {
+    try {
+      setPrayers([]);
 
-    const city = getLatLng(cities, parseInt(cityId));
+      const today = new Date();
+      const month = today.getMonth() + 1;
+      const day = today.getDate();
+      const year = today.getFullYear();
 
-    const dateToday = dayjs(`${year}-${month}-${day}`).format('DD-MM-YYYY');
+      const city = getLatLng(cities, parseInt(cityId));
 
-    const tuneParams = `${tune.Imsak},${tune.Fajr},${tune.Sunrise},${tune.Dhuhr},${tune.Asr},${tune.Maghrib},${tune.Sunset},${tune.Isha},${tune.Midnight}`;
-    const url = new URL(`${API2}${dateToday}`);
-    url.searchParams.set('latitude', city?.lat);
-    url.searchParams.set('longitude', city?.lng);
-    url.searchParams.set('method', method);
-    url.searchParams.set('tune', tuneParams);
+      const dateToday = dayjs(`${year}-${month}-${day}`).format("DD-MM-YYYY");
 
-    if (
-      city !== undefined &&
-      city.lat !== undefined &&
-      city.lng !== undefined
-    ) {
-      wretch(url.toString())
-        .get()
-        .json((json) => {
-          const { timings } = json.data;
-          if (timings) {
-            const prayers = {
-              Fajr: timings.Fajr,
-              Sunrise: timings.Sunrise,
-              Dhuhr: timings.Dhuhr,
-              Asr: timings.Asr,
-              Maghrib: timings.Maghrib,
-              Isha: timings.Isha,
-            };
-            setPrayers(prayers);
-          }
-        });
+      const tuneParams = `${tune.Imsak},${tune.Fajr},${tune.Sunrise},${tune.Dhuhr},${tune.Asr},${tune.Maghrib},${tune.Sunset},${tune.Isha},${tune.Midnight}`;
+      const url = new URL(`${API2}${dateToday}`);
+      url.searchParams.set("latitude", city?.lat);
+      url.searchParams.set("longitude", city?.lng);
+      url.searchParams.set("method", method);
+      url.searchParams.set("tune", tuneParams);
+
+      if (
+        city !== undefined &&
+        city.lat !== undefined &&
+        city.lng !== undefined
+      ) {
+        // fetch data from API
+        const response = await wretch(url.toString()).get().json();
+        const { timings } = response.data;
+        if (timings) {
+          const newPrayers = {
+            Fajr: timings.Fajr,
+            Sunrise: timings.Sunrise,
+            Dhuhr: timings.Dhuhr,
+            Asr: timings.Asr,
+            Maghrib: timings.Maghrib,
+            Isha: timings.Isha,
+          };
+          setPrayers(newPrayers);
+
+          localStorage.setItem("prayers", JSON.stringify(newPrayers));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+
+      const savedPrayers = localStorage.getItem("prayers");
+      if (savedPrayers) {
+        setPrayers(JSON.parse(savedPrayers));
+      }
     }
   };
 
   const handleChange = (value, selectOptionSetter) => {
     selectOptionSetter(value);
     fetchTodayTimes(value);
-    localStorage.setItem('savedCity', JSON.stringify(value));
+    localStorage.setItem("savedCity", JSON.stringify(value));
   };
 
   useEffect(() => {
@@ -98,7 +108,7 @@ export default function SelectCities({ setPrayers }) {
   }, []);
 
   useEffect(() => {
-    const savedCity = JSON.parse(localStorage.getItem('savedCity'));
+    const savedCity = JSON.parse(localStorage.getItem("savedCity"));
     if (savedCity) {
       setSelectedOption(savedCity);
     }
