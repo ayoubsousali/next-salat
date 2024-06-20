@@ -29,39 +29,28 @@ export default function Prayer({ name, time, isNext }) {
     return diffInSeconds >= 0 ? diffInSeconds : 0;
   }
 
-  const normalStyle =
-    "dark:border-light border-dark border-b-2 dark:text-light text-dark p-2 m-2";
-  const isNextStyle = "dark:text-red-500 text-red-500 px-2 mx-2";
+  const normalStyle = "dark:text-light text-dark flex items-center";
+  const isNextStyle = "dark:bg-dark2 bg-light2 rounded-xl flex items-center";
 
   return (
-    <div>
-      <div
-        className={`${
-          isNext ? isNextStyle : normalStyle
-        } flex justify-items-center justify-between max-w-[600px]`}
-      >
-        <span className="text-lg">{arabicName(name)}</span>
-        <span className="text-lg">{time}</span>
-      </div>
+    <div className={`${isNext ? isNextStyle : normalStyle} h-14 p-2`}>
+      <div className="flex justify-items-center items-center justify-between max-w-[600px] w-full">
+        <span className="text-xl">{arabicName(name)}</span>
 
-      {remainingTime > 0 && isNext && (
-        <div
-          className={`${
-            isNext
-              ? "dark:text-red-500 text-red-500 dark:border-red-500 border-red-500 border-b-4"
-              : "dark:text-light text-dark p-2 m-2"
-          } text-center text-sm px-2 mx-2 py-1`}
-        >
-          {Math.floor(remainingTime / 3600) > 0 && (
-            <span>{Math.floor(remainingTime / 3600)} ساعات</span>
-          )}
-          {Math.floor(remainingTime / 3600) > 0 &&
-            Math.floor((remainingTime % 3600) / 60) > 0 && <span> و </span>}
-          {Math.floor((remainingTime % 3600) / 60) > 0 && (
-            <span>{Math.floor((remainingTime % 3600) / 60)} دقائق للآذان</span>
-          )}
-        </div>
-      )}
+        {remainingTime > 0 && isNext && (
+          <div className="text-center text-sm ">
+            {Math.floor(remainingTime / 3600) > 0 && (
+              <span>{Math.floor(remainingTime / 3600)} س</span>
+            )}
+            {Math.floor(remainingTime / 3600) > 0 &&
+              Math.floor((remainingTime % 3600) / 60) > 0 && <span> و </span>}
+            {Math.floor((remainingTime % 3600) / 60) > 0 && (
+              <span>{Math.floor((remainingTime % 3600) / 60)} د للآذان</span>
+            )}
+          </div>
+        )}
+        <span className="text-xl">{time}</span>
+      </div>
     </div>
   );
 }
