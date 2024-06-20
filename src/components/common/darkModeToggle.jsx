@@ -1,40 +1,40 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 export default function DarkModeToggle() {
   const [theme, setTheme] = useState(null);
 
   useEffect(() => {
     if (
-      localStorage.theme === 'dark' ||
-      (!('theme' in localStorage) &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches)
+      localStorage.theme === "dark" ||
+      (!("theme" in localStorage) &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
     ) {
-      setTheme('dark');
+      setTheme("dark");
     } else {
-      setTheme('light');
+      setTheme("light");
     }
   }, []);
 
   useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
 
       let themeColorMeta = document.querySelector("meta[name=theme-color]");
       if (themeColorMeta) {
-          themeColorMeta.setAttribute("content", "#121212");
+        themeColorMeta.setAttribute("content", "#1c1c1e");
       }
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
 
       let themeColorMeta = document.querySelector("meta[name=theme-color]");
       if (themeColorMeta) {
-          themeColorMeta.setAttribute("content", "#DEE4E7");
+        themeColorMeta.setAttribute("content", "#f2f2f7");
       }
     }
   }, [theme]);
 
   const handleThemeSwitch = () => {
-    const t = theme === 'dark' ? 'light' : 'dark';
+    const t = theme === "dark" ? "light" : "dark";
     setTheme(t);
     localStorage.theme = t;
   };
@@ -46,7 +46,7 @@ export default function DarkModeToggle() {
       onClick={handleThemeSwitch}
       title="Dark mode toggle"
     >
-      {theme === 'dark' ? (
+      {theme === "dark" ? (
         <img src="sun.svg" alt="Light Mode" />
       ) : (
         <img src="moon.svg" alt="Dark Mode" />
