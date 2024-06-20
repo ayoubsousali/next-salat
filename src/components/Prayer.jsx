@@ -45,8 +45,9 @@ export default function Prayer({ name, time, isNext }) {
             {Math.floor(remainingTime / 3600) > 0 &&
               Math.floor((remainingTime % 3600) / 60) > 0 && <span> و </span>}
             {Math.floor((remainingTime % 3600) / 60) > 0 && (
-              <span>{Math.floor((remainingTime % 3600) / 60)} د للآذان</span>
+              <span>{Math.floor((remainingTime % 3600) / 60)} د </span>
             )}
+            <span>للآذان</span>
           </div>
         )}
         <span className="text-xl">{time}</span>
