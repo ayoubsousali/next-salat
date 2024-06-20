@@ -41,7 +41,7 @@ export default function SelectCities({ setPrayers }) {
   }, []);
 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center pb-2">
       <select
         value={selectedOption}
         onChange={(e) => handleChange(e.target.value, setSelectedOption)}
