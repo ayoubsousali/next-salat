@@ -43,6 +43,7 @@ export default function SelectCities({ setPrayers }) {
   return (
     <div className="flex justify-center pb-2">
       <select
+        aria-label="City"
         value={selectedOption}
         onChange={(e) => handleChange(e.target.value, setSelectedOption)}
         className="text-xl w-full h-14 dark:border-light border-dark dark:bg-dark2 bg-light2 dark:text-light text-dark p-2 dark:focus:border-light2 focus:border-dark2 dark:hover:border-light2 hover:border-dark2 rounded-xl"
