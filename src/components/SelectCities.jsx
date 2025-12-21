@@ -2,6 +2,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import wretch from "wretch";
+import { ChevronDown } from "lucide-react";
 import FetchTodayTimes from "./FetchTodayTimes";
 
 export default function SelectCities({ setPrayers }) {
@@ -41,25 +42,39 @@ export default function SelectCities({ setPrayers }) {
   }, []);
 
   return (
-    <div className="flex justify-center pb-2">
-      <select
-        aria-label="City"
-        value={selectedOption}
-        onChange={(e) => handleChange(e.target.value, setSelectedOption)}
-        className="text-xl w-full h-14 dark:border-light border-dark dark:bg-dark2 bg-light2 dark:text-light text-dark p-2 dark:focus:border-light2 focus:border-dark2 dark:hover:border-light2 hover:border-dark2 rounded-xl"
-      >
-        <FetchTodayTimes
-          cityId={selectedOption}
-          setPrayers={setPrayers}
-          cities={cities}
-        />
-        {cities &&
-          cities.map((city) => (
-            <option key={city.id} value={city.id}>
-              {city.name}
-            </option>
-          ))}
-      </select>
+    <div className="relative w-full">
+      {/* Logic Component maintained here */}
+      <FetchTodayTimes
+        cityId={selectedOption}
+        setPrayers={setPrayers}
+        cities={cities}
+      />
+
+      <div className="relative">
+        <select
+          aria-label="City"
+          value={selectedOption}
+          onChange={(e) => handleChange(e.target.value, setSelectedOption)}
+          className="appearance-none w-full text-lg w-full py-3 px-4 pr-4 pl-10 
+                     bg-white/50 dark:bg-black/30 backdrop-blur-md
+                     border border-slate-200 dark:border-slate-700
+                     rounded-xl
+                     text-slate-800 dark:text-slate-100
+                     focus:outline-none focus:ring-2 focus:ring-emerald-500/50
+                     transition-all duration-200 cursor-pointer
+                     font-medium"
+        >
+          {cities &&
+            cities.map((city) => (
+              <option key={city.id} value={city.id} className="text-slate-900 bg-white dark:bg-slate-800 dark:text-white">
+                {city.name}
+              </option>
+            ))}
+        </select>
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 dark:text-slate-400">
+          <ChevronDown className="w-5 h-5" />
+        </div>
+      </div>
     </div>
   );
 }

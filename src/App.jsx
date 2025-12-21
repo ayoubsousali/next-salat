@@ -5,10 +5,10 @@ import Main from './components/Main';
 function App() {
   return (
     <Layout>
-      <DarkModeToggle />
-      <div className="mx-8 flex justify-center">
-        <Main />
+      <div className="absolute top-4 right-4 z-50">
+        <DarkModeToggle />
       </div>
+      <Main />
     </Layout>
   );
 }

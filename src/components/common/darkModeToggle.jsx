@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Sun, Moon } from "lucide-react";
 
 export default function DarkModeToggle() {
   const [theme, setTheme] = useState(null);
@@ -42,14 +43,14 @@ export default function DarkModeToggle() {
   return (
     <button
       type="button"
-      className="p-4"
+      className="p-3 rounded-full bg-white/30 dark:bg-black/30 backdrop-blur-md shadow-sm border border-white/30 dark:border-white/10 hover:bg-white/40 dark:hover:bg-white/10 transition-all duration-300"
       onClick={handleThemeSwitch}
       title="Dark mode toggle"
     >
       {theme === "dark" ? (
-        <img src="sun.svg" alt="Light Mode" />
+        <Sun className="w-5 h-5 text-amber-400" />
       ) : (
-        <img src="moon.svg" alt="Dark Mode" />
+        <Moon className="w-5 h-5 text-indigo-500" />
       )}
     </button>
   );
