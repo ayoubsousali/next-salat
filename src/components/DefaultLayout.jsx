@@ -5,6 +5,12 @@ export default function DefaultLayout({ children }) {
   return (
     <div className="min-h-screen w-full relative overflow-hidden bg-gradient-to-br from-blue-100 via-purple-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-950 font-serif text-slate-900 dark:text-slate-50 transition-colors duration-500">
 
+      {/* Zellij Pattern Overlay */}
+      <div
+        className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none mix-blend-multiply dark:mix-blend-overlay"
+        style={{ backgroundImage: "url('/zellij.png')", backgroundSize: "400px" }}
+      />
+
       {/* Decorative Orbs */}
       <div className="fixed top-0 left-0 w-96 h-96 bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-[120px] pointer-events-none -translate-x-1/2 -translate-y-1/2" />
       <div className="fixed bottom-0 right-0 w-96 h-96 bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-[120px] pointer-events-none translate-x-1/2 translate-y-1/2" />
