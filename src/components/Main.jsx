@@ -1,96 +1,125 @@
+import { useEffect, useState } from "react";
+import { CalendarDays } from "lucide-react";
 import dayjs from "dayjs";
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { MapPin, CalendarDays } from "lucide-react";
-import Spinner from "./common/spinner";
+import DarkModeToggle from "./common/darkModeToggle";
+import PullToRefresh from "./common/pullToRefresh";
+import NextPrayerHero from "./NextPrayerHero";
 import Prayer from "./Prayer";
 import SelectCities from "./SelectCities";
-import PullToRefresh from "./common/pullToRefresh";
+import {
+  formatCountdownAr,
+  formatGregorian,
+  formatHijri,
+  getNextPrayer,
+  intervalProgress,
+  isPrayerPassed,
+  readCachedPrayers,
+  remainingSeconds,
+} from "../Utils";
+
+function PrayerSkeleton() {
+  return (
+    <div className="space-y-2" aria-hidden="true">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div
+          key={index}
+          className="h-14 animate-pulse rounded-2xl bg-black/5 dark:bg-white/10"
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function Main() {
-  const [prayers, setPrayers] = useState({});
+  const [prayers, setPrayers] = useState(readCachedPrayers);
+  const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [now, setNow] = useState(() => dayjs());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(dayjs()), 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const handleRefresh = () => {
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
   const prayersArr = Object.entries(prayers);
-
-  const nextPrayers = prayersArr.filter((prayer) => {
-    const time = dayjs();
-    const dateToday = dayjs().format("YYYY-MM-DD");
-    return dayjs(`${dateToday} ${prayer[1]}`).isAfter(time);
-  });
-  const nextPrayer = nextPrayers.length > 0 ? nextPrayers[0] : prayersArr[0];
-
-  const date = new Date();
-  const options = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  };
-  const dateFormatted = new Intl.DateTimeFormat("ar-MA", options).format(date);
+  const nextPrayer = getNextPrayer(prayers, now);
+  const remaining = nextPrayer ? remainingSeconds(nextPrayer[1], now) : 0;
+  const progress = nextPrayer ? intervalProgress(prayers, nextPrayer[0], now) : 0;
+  const hijri = formatHijri();
 
   return (
-    <main
-      key={refreshKey}
-      className="w-full flex flex-col items-center"
-    >
+    <main key={refreshKey} className="flex w-full flex-1 flex-col">
       <PullToRefresh onRefresh={handleRefresh} />
 
-      <div className="w-full max-w-md px-4 z-10">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-8"
-        >
-          <h1 className="text-3xl font-bold font-serif text-slate-800 dark:text-white mb-2 drop-shadow-sm">
+      <header className="mb-4 flex items-start justify-between gap-3 sm:mb-6">
+        <div className="min-w-0">
+          <h1 className="text-xl leading-tight text-ink min-[400px]:text-2xl sm:text-3xl">
             أوقات الصلاة
           </h1>
-          <div className="flex items-center justify-center gap-2 text-slate-600 dark:text-slate-300 bg-white/40 dark:bg-black/20 backdrop-blur-md py-1.5 px-4 rounded-full mx-auto w-fit">
-            <CalendarDays className="w-4 h-4" />
-            <span className="text-sm font-medium pt-1">{dateFormatted}</span>
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-muted">
+            <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+            <p className="text-xs min-[400px]:text-sm">{formatGregorian()}</p>
+            {hijri ? (
+              <>
+                <span className="hidden text-muted/50 min-[360px]:inline">·</span>
+                <p className="w-full text-xs min-[360px]:w-auto min-[400px]:text-sm">{hijri}</p>
+              </>
+            ) : null}
           </div>
-        </motion.div>
+        </div>
+        <DarkModeToggle />
+      </header>
 
-        {/* Glass Card Container */}
-        <div className="bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-6">
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-2 px-2">
-              <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                <MapPin className="w-4 h-4" />
-                <span>المدينة</span>
-              </label>
+      <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-12 md:gap-6 lg:gap-8">
+        <div className="md:col-span-5 md:col-start-8">
+          <SelectCities setPrayers={setPrayers} setLoading={setLoading} />
+        </div>
+
+        <div className="md:col-span-7 md:col-start-1 md:row-span-2 md:row-start-1">
+          <div className="md:sticky md:top-6">
+            <NextPrayerHero
+              name={nextPrayer?.[0]}
+              time={nextPrayer?.[1]}
+              remaining={remaining}
+              progress={progress}
+            />
+          </div>
+        </div>
+
+        <section className="md:col-span-5 md:col-start-8">
+          <div className="rounded-3xl border border-black/5 bg-white/70 p-2 shadow-card backdrop-blur-md dark:border-white/10 dark:bg-white/5 min-[400px]:p-3">
+            <div className="mb-1 flex items-center justify-between px-2 pt-1">
+              <h2 className="text-sm text-muted">جدول اليوم</h2>
+              {loading && prayersArr.length > 0 ? (
+                <span className="text-[11px] text-muted">تحديث...</span>
+              ) : null}
             </div>
-            <SelectCities setPrayers={setPrayers} />
-          </div>
-
-          <div className="space-y-1">
-            {prayersArr && prayersArr.length > 0 ? (
-              prayersArr.map((prayer, index) => (
-                <Prayer
-                  key={prayer[0]}
-                  name={prayer[0]}
-                  time={prayer[1]}
-                  isNext={prayer[0] === nextPrayer[0]}
-                  index={index}
-                />
-              ))
+            {prayersArr.length > 0 ? (
+              <ul className={loading ? "opacity-70 transition-opacity" : ""}>
+                {prayersArr.map((prayer, index) => {
+                  const isNext = nextPrayer?.[0] === prayer[0];
+                  return (
+                    <Prayer
+                      key={prayer[0]}
+                      name={prayer[0]}
+                      time={prayer[1]}
+                      isNext={isNext}
+                      isPassed={!isNext && isPrayerPassed(prayer[1], now)}
+                      remainingLabel={isNext ? formatCountdownAr(remaining) : null}
+                      index={index}
+                    />
+                  );
+                })}
+              </ul>
             ) : (
-              <div className="py-20 flex justify-center">
-                <Spinner />
-              </div>
+              <PrayerSkeleton />
             )}
           </div>
-        </div>
-
-        {/* Footer Credit */}
-        <div className="text-center mt-8 text-xs text-slate-400 dark:text-slate-600">
-          تقبل الله صلاتكم
-        </div>
+        </section>
       </div>
     </main>
   );

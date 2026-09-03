@@ -1,111 +1,57 @@
-import React, { useState, useEffect } from "react";
-import dayjs from "dayjs";
 import { motion } from "framer-motion";
-import { Sunrise, Sun, Sunset, Moon, CloudSun, Sparkles } from "lucide-react";
-import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-import arabicName from "../Utils";
+import arabicName, { cn } from "../Utils";
+import { PrayerIcon } from "./PrayerIcon";
 
-function cn(...inputs) {
-  return twMerge(clsx(inputs));
-}
-
-const getPrayerIcon = (name) => {
-  switch (name) {
-    case 'Fajr': return <Sparkles className="w-6 h-6 text-teal-400" />;
-    case 'Sunrise': case 'Chorouq': return <Sunrise className="w-6 h-6 text-orange-400" />;
-    case 'Dhuhr': return <Sun className="w-6 h-6 text-yellow-500" />;
-    case 'Asr': return <CloudSun className="w-6 h-6 text-orange-300" />;
-    case 'Maghrib': return <Sunset className="w-6 h-6 text-red-400" />;
-    case 'Isha': case 'Ishae': return <Moon className="w-6 h-6 text-indigo-400" />;
-    default: return <Sparkles className="w-6 h-6" />;
-  }
-};
-
-export default function Prayer({ name, time, isNext }) {
-  const now = dayjs();
-  const [remainingTime, setRemainingTime] = useState(calculateRemainingTime());
-
-  useEffect(() => {
-    let intervalId = null;
-
-    if (isNext) {
-      intervalId = setInterval(() => {
-        setRemainingTime((current) => current - 60);
-      }, 60000);
-    } else {
-      clearInterval(intervalId);
-    }
-
-    return () => clearInterval(intervalId);
-  }, [isNext]);
-
-  function calculateRemainingTime() {
-    const [hoursString, minutesString] = time.split(":");
-    const hours = parseInt(hoursString);
-    const minutes = parseInt(minutesString);
-    const prayerTime = now.set("hour", hours).set("minute", minutes);
-    const diffInSeconds = prayerTime.diff(now, "second");
-    return diffInSeconds >= 0 ? diffInSeconds : 0;
-  }
-
-  const formatRemainingTime = (seconds) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-
-    if (h > 0) return `${h} س و ${m} د`;
-    return `${m} دقيقة`;
-  };
+export default function Prayer({ name, time, isNext, isPassed, remainingLabel, index }) {
+  const arabic = arabicName(name);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
+    <motion.li
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      layout
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.28, delay: index * 0.04 }}
+      aria-current={isNext ? "true" : undefined}
       className={cn(
-        "relative flex items-center justify-between p-4 mb-3 rounded-2xl transition-all duration-300 overflow-hidden",
+        "relative flex min-h-[3.25rem] items-center justify-between gap-3 rounded-2xl px-3 py-2.5 transition-colors min-[400px]:min-h-[3.5rem] min-[400px]:px-4 min-[400px]:py-3",
         isNext
-          ? "bg-white/20 dark:bg-black/30 backdrop-blur-lg shadow-lg border-r-4 border-emerald-500"
-          : "bg-white/10 dark:bg-white/5 hover:bg-white/15 dark:hover:bg-white/10"
+          ? "bg-teal-800 text-white shadow-md dark:bg-teal-700"
+          : isPassed
+            ? "text-muted opacity-50"
+            : "text-ink hover:bg-black/[0.03] dark:hover:bg-white/[0.04]",
       )}
     >
-      {/* Active State Background Glow */}
-      {isNext && (
-        <motion.div
-          layoutId="activeGlow"
-          className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent pointer-events-none"
-        />
-      )}
-
-      <div className="flex items-center gap-4 z-10">
-        <div className="p-2 rounded-full bg-white/10 backdrop-blur-sm shadow-sm">
-          {getPrayerIcon(name)}
-        </div>
-        <div className="flex flex-col">
-          <span className="text-xl font-bold font-serif dark:text-gray-100 text-gray-800">
-            {arabicName(name)}
-          </span>
-          {isNext && remainingTime > 0 && (
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-xs text-emerald-600 dark:text-emerald-400 font-medium"
-            >
-              متبقي  {formatRemainingTime(remainingTime)}
-            </motion.span>
+      <div className="flex min-w-0 items-center gap-3">
+        <div
+          className={cn(
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+            isNext ? "bg-white/15" : "bg-teal-800/10 dark:bg-white/10",
           )}
+        >
+          <PrayerIcon
+            name={name}
+            onDark={isNext}
+            className={cn("h-5 w-5", isNext && "text-amber-100")}
+          />
+        </div>
+        <div className="min-w-0">
+          <p className={cn("truncate text-base min-[400px]:text-lg", isNext && "font-semibold")}>
+            {arabic}
+          </p>
+          {isNext && remainingLabel ? (
+            <p className="text-[11px] text-amber-100 min-[400px]:text-xs">متبقي {remainingLabel}</p>
+          ) : null}
         </div>
       </div>
 
-      <div className="z-10">
-        <span className={cn(
-          "text-2xl font-serif tracking-wider",
-          isNext ? "text-emerald-600 dark:text-emerald-400 font-bold" : "dark:text-gray-300 text-gray-600"
-        )}>
-          {time}
-        </span>
-      </div>
-    </motion.div>
+      <time
+        dateTime={time}
+        className={cn(
+          "font-time shrink-0 text-lg min-[400px]:text-xl",
+          isNext ? "font-semibold text-amber-100" : isPassed ? "text-current" : "text-ink",
+        )}
+      >
+        {time}
+      </time>
+    </motion.li>
   );
 }

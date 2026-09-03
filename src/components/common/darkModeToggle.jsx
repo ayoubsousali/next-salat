@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Sun, Moon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Moon, Sun } from "lucide-react";
 
 export default function DarkModeToggle() {
   const [theme, setTheme] = useState(null);
@@ -17,41 +17,38 @@ export default function DarkModeToggle() {
   }, []);
 
   useEffect(() => {
+    if (!theme) return;
+
+    const root = document.documentElement;
+    const themeColorMeta = document.querySelector("meta[name=theme-color]");
+
     if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-
-      let themeColorMeta = document.querySelector("meta[name=theme-color]");
-      if (themeColorMeta) {
-        themeColorMeta.setAttribute("content", "#1c1c1e");
-      }
+      root.classList.add("dark");
+      themeColorMeta?.setAttribute("content", "#06110f");
     } else {
-      document.documentElement.classList.remove("dark");
-
-      let themeColorMeta = document.querySelector("meta[name=theme-color]");
-      if (themeColorMeta) {
-        themeColorMeta.setAttribute("content", "#f2f2f7");
-      }
+      root.classList.remove("dark");
+      themeColorMeta?.setAttribute("content", "#f4efe4");
     }
   }, [theme]);
 
   const handleThemeSwitch = () => {
-    const t = theme === "dark" ? "light" : "dark";
-    setTheme(t);
-    localStorage.theme = t;
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    localStorage.theme = next;
   };
+
+  const isDark = theme === "dark";
 
   return (
     <button
       type="button"
-      className="p-3 rounded-full bg-white/30 dark:bg-black/30 backdrop-blur-md shadow-sm border border-white/30 dark:border-white/10 hover:bg-white/40 dark:hover:bg-white/10 transition-all duration-300"
       onClick={handleThemeSwitch}
-      title="Dark mode toggle"
+      title={isDark ? "الوضع النهاري" : "الوضع الليلي"}
+      aria-pressed={isDark}
+      aria-label={isDark ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي"}
+      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-black/5 bg-white/70 text-teal-800 shadow-sm backdrop-blur-md transition-colors hover:bg-white dark:border-white/10 dark:bg-white/10 dark:text-amber-300 dark:hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/60"
     >
-      {theme === "dark" ? (
-        <Sun className="w-5 h-5 text-amber-400" />
-      ) : (
-        <Moon className="w-5 h-5 text-indigo-500" />
-      )}
+      {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
     </button>
   );
 }

@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import dayjs from "dayjs";
 import wretch from "wretch";
+import { cleanTiming, writeCachedPrayers } from "../Utils";
 
-export default function FetchTodayTimes({ cityId, setPrayers, cities }) {
-  const API = import.meta.env.VITE_API_SALAT2;
-  const method = 3; // MWL: Muslim World League
+export default function FetchTodayTimes({ cityId, setPrayers, cities, setLoading }) {
+  const API = import.meta.env.VITE_API_SALAT2 || "https://api.aladhan.com/v1/timings/";
+  const method = 3;
   const t = {
     Imsak: 0,
     Fajr: -6,
@@ -19,24 +20,24 @@ export default function FetchTodayTimes({ cityId, setPrayers, cities }) {
 
   useEffect(() => {
     fetchTodayTimes(cityId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cityId, cities]);
 
-  const getLatLng = (citiesArr, cityId) =>
-    citiesArr.find((city) => parseInt(city.id) === cityId);
+  const getLatLng = (citiesArr, id) =>
+    citiesArr.find((city) => parseInt(city.id, 10) === id);
 
-  const fetchTodayTimes = async (cityId) => {
+  const fetchTodayTimes = async (id) => {
+    if (!cities?.length) return;
+
     try {
-      setPrayers([]);
+      setLoading?.(true);
 
       const today = new Date();
       const m = today.getMonth() + 1;
       const d = today.getDate();
       const y = today.getFullYear();
-
-      const city = getLatLng(cities, parseInt(cityId));
-
+      const city = getLatLng(cities, parseInt(id, 10));
       const dateToday = dayjs(`${y}-${m}-${d}`).format("DD-MM-YYYY");
-
       const tuneParams = `${t.Imsak},${t.Fajr},${t.Sunrise},${t.Dhuhr},${t.Asr},${t.Maghrib},${t.Sunset},${t.Isha},${t.Midnight}`;
 
       const url = new URL(`${API}${dateToday}`);
@@ -45,35 +46,33 @@ export default function FetchTodayTimes({ cityId, setPrayers, cities }) {
       url.searchParams.set("method", method);
       url.searchParams.set("tune", tuneParams);
 
-      if (
-        city !== undefined &&
-        city.lat !== undefined &&
-        city.lng !== undefined
-      ) {
-        // fetch data from API
+      if (city?.lat !== undefined && city?.lng !== undefined) {
         const response = await wretch(url.toString()).get().json();
         const { timings } = response.data;
         if (timings) {
           const newPrayers = {
-            Fajr: timings.Fajr,
-            Sunrise: timings.Sunrise,
-            Dhuhr: timings.Dhuhr,
-            Asr: timings.Asr,
-            Maghrib: timings.Maghrib,
-            Isha: timings.Isha,
+            Fajr: cleanTiming(timings.Fajr),
+            Sunrise: cleanTiming(timings.Sunrise),
+            Dhuhr: cleanTiming(timings.Dhuhr),
+            Asr: cleanTiming(timings.Asr),
+            Maghrib: cleanTiming(timings.Maghrib),
+            Isha: cleanTiming(timings.Isha),
           };
           setPrayers(newPrayers);
-
-          localStorage.setItem("prayers", JSON.stringify(newPrayers));
+          writeCachedPrayers(newPrayers);
         }
       }
     } catch (error) {
-      /* console.error("Error fetching data:", error); */
-
-      const savedPrayers = localStorage.getItem("prayers");
-      if (savedPrayers) {
-        setPrayers(JSON.parse(savedPrayers));
+      try {
+        const savedPrayers = localStorage.getItem("prayers");
+        if (savedPrayers) setPrayers(JSON.parse(savedPrayers));
+      } catch {
+        /* keep current times */
       }
+    } finally {
+      setLoading?.(false);
     }
   };
+
+  return null;
 }
