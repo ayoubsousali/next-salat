@@ -1,24 +1,15 @@
 /* eslint-disable react/prop-types */
-import Footer from './Footer';
+import Footer from "./Footer";
 
 export default function DefaultLayout({ children }) {
   return (
-    <div className="min-h-screen w-full relative overflow-hidden bg-gradient-to-br from-blue-100 via-purple-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-950 font-serif text-slate-900 dark:text-slate-50 transition-colors duration-500">
+    <div className="relative min-h-[100svh] bg-canvas text-ink transition-colors duration-500">
+      <div className="zellij-bg pointer-events-none absolute inset-0 opacity-[0.035] mix-blend-multiply dark:opacity-[0.07] dark:mix-blend-overlay" />
+      <div className="pointer-events-none fixed -right-24 -top-24 h-72 w-72 rounded-full bg-teal-700/15 blur-[90px] dark:bg-teal-400/10" />
+      <div className="pointer-events-none fixed -bottom-28 -left-20 h-80 w-80 rounded-full bg-amber-400/15 blur-[100px] dark:bg-amber-200/5" />
 
-      {/* Zellij Pattern Overlay */}
-      <div
-        className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none mix-blend-multiply dark:mix-blend-overlay"
-        style={{ backgroundImage: "url('/zellij.png')", backgroundSize: "400px" }}
-      />
-
-      {/* Decorative Orbs */}
-      <div className="fixed top-0 left-0 w-96 h-96 bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-[120px] pointer-events-none -translate-x-1/2 -translate-y-1/2" />
-      <div className="fixed bottom-0 right-0 w-96 h-96 bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-[120px] pointer-events-none translate-x-1/2 translate-y-1/2" />
-
-      <div className="relative z-10 flex flex-col min-h-screen">
-        <div className="flex-grow flex flex-col items-center w-full max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
-          {children}
-        </div>
+      <div className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-6xl flex-col px-3 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(0.75rem,env(safe-area-inset-top))] min-[400px]:px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-1 flex-col">{children}</div>
         <Footer />
       </div>
     </div>
