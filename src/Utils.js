@@ -178,3 +178,55 @@ export function writeCachedPrayers(prayers) {
     /* ignore storage errors */
   }
 }
+
+export function getDateKey(date = getNowUtc()) {
+  return toUtcDayjs(date).format("YYYY-MM-DD");
+}
+
+export function formatDayLabel(targetDate, nowDate = getNowUtc()) {
+  const target = toUtcDayjs(targetDate).startOf("day");
+  const now = toUtcDayjs(nowDate).startOf("day");
+  const diffDays = Math.round(target.diff(now, "day", true));
+
+  if (diffDays === 0) return "اليوم";
+  if (diffDays === 1) return "غداً";
+  if (diffDays === -1) return "أمس";
+
+  return new Intl.DateTimeFormat("ar-MA", {
+    timeZone: "UTC",
+    weekday: "long",
+  }).format(target.toDate());
+}
+
+export function formatDayNumber(date) {
+  const d = toUtcDayjs(date);
+  return d.format("D");
+}
+
+export function formatMonthArabic(date) {
+  const d = toUtcDayjs(date);
+  return new Intl.DateTimeFormat("ar-MA", {
+    timeZone: "UTC",
+    month: "long",
+  }).format(d.toDate());
+}
+
+export function readCachedCalendar(cityId, year, month) {
+  try {
+    const key = `calendar_${cityId}_${year}_${month}`;
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeCachedCalendar(cityId, year, month, data) {
+  try {
+    const key = `calendar_${cityId}_${year}_${month}`;
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch {
+    /* ignore storage errors */
+  }
+}
+

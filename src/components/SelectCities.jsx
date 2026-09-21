@@ -7,7 +7,7 @@ import { Check, ChevronDown, MapPin, Search, X } from "lucide-react";
 import FetchTodayTimes from "./FetchTodayTimes";
 import { cn, normalizeAr } from "../Utils";
 
-export default function SelectCities({ setPrayers, setLoading }) {
+export default function SelectCities({ setPrayers, setLoading, setCalendarData }) {
   const [cities, setCities] = useState([]);
   const [selectedOption, setSelectedOption] = useState("9002");
   const [open, setOpen] = useState(false);
@@ -85,6 +85,7 @@ export default function SelectCities({ setPrayers, setLoading }) {
       <FetchTodayTimes
         cityId={selectedOption}
         setPrayers={setPrayers}
+        setCalendarData={setCalendarData}
         cities={cities}
         setLoading={setLoading}
       />

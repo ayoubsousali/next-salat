@@ -13,7 +13,15 @@ function CountUnit({ value, label }) {
   );
 }
 
-export default function NextPrayerHero({ name, time, remaining, progress }) {
+export default function NextPrayerHero({
+  name,
+  time,
+  remaining,
+  progress,
+  isToday = true,
+  selectedDayLabel,
+  onResetToday,
+}) {
   if (!name || !time) {
     return (
       <div className="hero-wash h-48 animate-pulse rounded-3xl shadow-hero min-[400px]:h-56 lg:h-[22rem]" />
@@ -34,11 +42,31 @@ export default function NextPrayerHero({ name, time, remaining, progress }) {
       <div className="pointer-events-none absolute -left-10 top-6 h-32 w-32 rounded-full border border-white/10" />
       <div className="pointer-events-none absolute -left-4 top-14 h-20 w-20 rounded-full border border-amber-200/20" />
 
+      {/* Non-today contextual banner */}
+      {!isToday && (
+        <div className="relative mb-3 flex items-center justify-between rounded-xl bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+          <div className="flex items-center gap-1.5 text-xs text-amber-200">
+            <span>تستعرض جدول:</span>
+            <span className="font-semibold text-white">{selectedDayLabel}</span>
+          </div>
+          {onResetToday && (
+            <button
+              type="button"
+              onClick={onResetToday}
+              className="inline-flex items-center gap-1 rounded-lg bg-white/15 px-2 py-0.5 text-[11px] font-medium text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-200"
+            >
+              <span>العودة لليوم</span>
+              <span>↺</span>
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="relative flex h-full flex-col justify-between gap-3 min-[400px]:gap-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-[11px] font-medium tracking-wide text-amber-200/90 min-[400px]:text-xs">
-              الصلاة التالية
+              {isToday ? "الصلاة التالية" : "الصلاة التالية (اليوم)"}
             </p>
             <h2 className="mt-1 text-3xl leading-tight min-[400px]:text-4xl lg:text-5xl">
               {arabic}
