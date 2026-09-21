@@ -1,7 +1,6 @@
 import { useEffect } from "react";
-import dayjs from "dayjs";
 import wretch from "wretch";
-import { cleanTiming, writeCachedPrayers } from "../Utils";
+import { cleanTiming, getNowUtc, readCachedPrayers, writeCachedPrayers } from "../Utils";
 
 export default function FetchTodayTimes({ cityId, setPrayers, cities, setLoading }) {
   const API = import.meta.env.VITE_API_SALAT2 || "https://api.aladhan.com/v1/timings/";
@@ -32,12 +31,8 @@ export default function FetchTodayTimes({ cityId, setPrayers, cities, setLoading
     try {
       setLoading?.(true);
 
-      const today = new Date();
-      const m = today.getMonth() + 1;
-      const d = today.getDate();
-      const y = today.getFullYear();
       const city = getLatLng(cities, parseInt(id, 10));
-      const dateToday = dayjs(`${y}-${m}-${d}`).format("DD-MM-YYYY");
+      const dateToday = getNowUtc().format("DD-MM-YYYY");
       const tuneParams = `${t.Imsak},${t.Fajr},${t.Sunrise},${t.Dhuhr},${t.Asr},${t.Maghrib},${t.Sunset},${t.Isha},${t.Midnight}`;
 
       const url = new URL(`${API}${dateToday}`);
@@ -45,6 +40,7 @@ export default function FetchTodayTimes({ cityId, setPrayers, cities, setLoading
       url.searchParams.set("longitude", city?.lng);
       url.searchParams.set("method", method);
       url.searchParams.set("tune", tuneParams);
+      url.searchParams.set("timezonestring", "UTC");
 
       if (city?.lat !== undefined && city?.lng !== undefined) {
         const response = await wretch(url.toString()).get().json();
@@ -64,8 +60,10 @@ export default function FetchTodayTimes({ cityId, setPrayers, cities, setLoading
       }
     } catch (error) {
       try {
-        const savedPrayers = localStorage.getItem("prayers");
-        if (savedPrayers) setPrayers(JSON.parse(savedPrayers));
+        const savedPrayers = readCachedPrayers();
+        if (savedPrayers && Object.keys(savedPrayers).length > 0) {
+          setPrayers(savedPrayers);
+        }
       } catch {
         /* keep current times */
       }

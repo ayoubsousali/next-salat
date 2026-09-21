@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { CalendarDays } from "lucide-react";
-import dayjs from "dayjs";
 import DarkModeToggle from "./common/darkModeToggle";
 import PullToRefresh from "./common/pullToRefresh";
 import NextPrayerHero from "./NextPrayerHero";
@@ -11,6 +10,7 @@ import {
   formatGregorian,
   formatHijri,
   getNextPrayer,
+  getNowUtc,
   intervalProgress,
   isPrayerPassed,
   readCachedPrayers,
@@ -34,10 +34,10 @@ export default function Main() {
   const [prayers, setPrayers] = useState(readCachedPrayers);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [now, setNow] = useState(() => dayjs());
+  const [now, setNow] = useState(getNowUtc);
 
   useEffect(() => {
-    const id = setInterval(() => setNow(dayjs()), 1000);
+    const id = setInterval(() => setNow(getNowUtc()), 1000);
     return () => clearInterval(id);
   }, []);
 
@@ -49,7 +49,7 @@ export default function Main() {
   const nextPrayer = getNextPrayer(prayers, now);
   const remaining = nextPrayer ? remainingSeconds(nextPrayer[1], now) : 0;
   const progress = nextPrayer ? intervalProgress(prayers, nextPrayer[0], now) : 0;
-  const hijri = formatHijri();
+  const hijri = formatHijri(now);
 
   return (
     <main key={refreshKey} className="flex w-full flex-1 flex-col">
@@ -57,12 +57,22 @@ export default function Main() {
 
       <header className="mb-4 flex items-start justify-between gap-3 sm:mb-6">
         <div className="min-w-0">
-          <h1 className="text-xl leading-tight text-ink min-[400px]:text-2xl sm:text-3xl">
-            أوقات الصلاة
-          </h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-xl leading-tight text-ink min-[400px]:text-2xl sm:text-3xl">
+              أوقات الصلاة
+            </h1>
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full border border-teal-600/20 bg-teal-800/10 px-2 py-0.5 text-[11px] font-medium text-teal-800 dark:border-teal-400/20 dark:bg-teal-400/10 dark:text-teal-300"
+              title="التطبيق مضبوط على توقيت غرينتش (UTC+0)"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-teal-600 animate-pulse dark:bg-teal-400" />
+              <span>غرينتش (UTC)</span>
+              <span className="font-time font-semibold">{now.format("HH:mm")}</span>
+            </span>
+          </div>
           <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-muted">
             <CalendarDays className="h-3.5 w-3.5 shrink-0" />
-            <p className="text-xs min-[400px]:text-sm">{formatGregorian()}</p>
+            <p className="text-xs min-[400px]:text-sm">{formatGregorian(now)}</p>
             {hijri ? (
               <>
                 <span className="hidden text-muted/50 min-[360px]:inline">·</span>

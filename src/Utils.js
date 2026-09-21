@@ -1,9 +1,22 @@
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc.js";
+
+dayjs.extend(utc);
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
+}
+
+export function getNowUtc() {
+  return dayjs.utc();
+}
+
+function toUtcDayjs(value) {
+  if (!value) return dayjs.utc();
+  if (dayjs.isDayjs(value)) return value.isUTC() ? value : value.utc();
+  return dayjs.utc(value);
 }
 
 export default function arabicName(name) {
@@ -27,19 +40,21 @@ export default function arabicName(name) {
   }
 }
 
-export function prayerDateTime(time, now = dayjs()) {
+export function prayerDateTime(time, now = getNowUtc()) {
+  const current = toUtcDayjs(now);
   const [hoursString, minutesString] = String(time || "00:00").split(":");
   const hours = parseInt(hoursString, 10) || 0;
   const minutes = parseInt(minutesString, 10) || 0;
-  return now.hour(hours).minute(minutes).second(0).millisecond(0);
+  return current.hour(hours).minute(minutes).second(0).millisecond(0);
 }
 
-export function remainingSeconds(time, now = dayjs()) {
-  let target = prayerDateTime(time, now);
-  if (!target.isAfter(now)) {
+export function remainingSeconds(time, now = getNowUtc()) {
+  const current = toUtcDayjs(now);
+  let target = prayerDateTime(time, current);
+  if (!target.isAfter(current)) {
     target = target.add(1, "day");
   }
-  return Math.max(0, target.diff(now, "second"));
+  return Math.max(0, target.diff(current, "second"));
 }
 
 export function splitCountdown(seconds) {
@@ -62,18 +77,21 @@ export function pad2(value) {
   return String(value).padStart(2, "0");
 }
 
-export function getNextPrayer(prayers, now = dayjs()) {
+export function getNextPrayer(prayers, now = getNowUtc()) {
+  const current = toUtcDayjs(now);
   const entries = Object.entries(prayers || {});
   if (entries.length === 0) return null;
-  const upcoming = entries.find(([, time]) => prayerDateTime(time, now).isAfter(now));
+  const upcoming = entries.find(([, time]) => prayerDateTime(time, current).isAfter(current));
   return upcoming || entries[0];
 }
 
-export function isPrayerPassed(time, now = dayjs()) {
-  return !prayerDateTime(time, now).isAfter(now);
+export function isPrayerPassed(time, now = getNowUtc()) {
+  const current = toUtcDayjs(now);
+  return !prayerDateTime(time, current).isAfter(current);
 }
 
-export function intervalProgress(prayers, nextName, now = dayjs()) {
+export function intervalProgress(prayers, nextName, now = getNowUtc()) {
+  const current = toUtcDayjs(now);
   const entries = Object.entries(prayers || {});
   if (entries.length < 2 || !nextName) return 0;
 
@@ -83,34 +101,38 @@ export function intervalProgress(prayers, nextName, now = dayjs()) {
   const prev = entries[idx === 0 ? entries.length - 1 : idx - 1];
   const next = entries[idx];
 
-  let end = prayerDateTime(next[1], now);
-  if (!end.isAfter(now)) end = end.add(1, "day");
+  let end = prayerDateTime(next[1], current);
+  if (!end.isAfter(current)) end = end.add(1, "day");
 
-  let start = prayerDateTime(prev[1], now);
-  if (!start.isBefore(end) || !start.isBefore(now)) {
+  let start = prayerDateTime(prev[1], current);
+  if (!start.isBefore(end) || !start.isBefore(current)) {
     start = start.subtract(1, "day");
   }
 
   const total = end.diff(start, "second");
   if (total <= 0) return 0;
-  return Math.min(1, Math.max(0, now.diff(start, "second") / total));
+  return Math.min(1, Math.max(0, current.diff(start, "second") / total));
 }
 
 export function formatGregorian(date = new Date()) {
+  const d = dayjs.isDayjs(date) ? date.toDate() : date;
   return new Intl.DateTimeFormat("ar-MA", {
+    timeZone: "UTC",
     weekday: "long",
     day: "numeric",
     month: "long",
-  }).format(date);
+  }).format(d);
 }
 
 export function formatHijri(date = new Date()) {
   try {
+    const d = dayjs.isDayjs(date) ? date.toDate() : date;
     return new Intl.DateTimeFormat("ar-TN-u-ca-islamic", {
+      timeZone: "UTC",
       day: "numeric",
       month: "long",
       year: "numeric",
-    }).format(date);
+    }).format(d);
   } catch {
     return null;
   }
@@ -131,13 +153,15 @@ export function cleanTiming(value) {
   return String(value || "").split(" ")[0];
 }
 
-export function todayKey(now = dayjs()) {
-  return now.format("YYYY-MM-DD");
+export function todayKey(now = getNowUtc()) {
+  const current = toUtcDayjs(now);
+  return current.format("YYYY-MM-DD");
 }
 
 export function readCachedPrayers() {
   try {
     if (localStorage.getItem("prayersDate") !== todayKey()) return {};
+    if (localStorage.getItem("prayersTz") !== "UTC") return {};
     const saved = localStorage.getItem("prayers");
     return saved ? JSON.parse(saved) : {};
   } catch {
@@ -146,6 +170,11 @@ export function readCachedPrayers() {
 }
 
 export function writeCachedPrayers(prayers) {
-  localStorage.setItem("prayers", JSON.stringify(prayers));
-  localStorage.setItem("prayersDate", todayKey());
+  try {
+    localStorage.setItem("prayers", JSON.stringify(prayers));
+    localStorage.setItem("prayersDate", todayKey());
+    localStorage.setItem("prayersTz", "UTC");
+  } catch {
+    /* ignore storage errors */
+  }
 }
