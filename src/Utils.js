@@ -158,8 +158,10 @@ export function todayKey(now = getNowUtc()) {
   return current.format("YYYY-MM-DD");
 }
 
-export function readCachedPrayers() {
+export function readCachedPrayers(cityId) {
   try {
+    const selectedCity = cityId ?? JSON.parse(localStorage.getItem("savedCity")) ?? "9002";
+    if (localStorage.getItem("prayersCity") !== String(selectedCity)) return {};
     if (localStorage.getItem("prayersDate") !== todayKey()) return {};
     if (localStorage.getItem("prayersTz") !== "UTC") return {};
     const saved = localStorage.getItem("prayers");
@@ -169,11 +171,12 @@ export function readCachedPrayers() {
   }
 }
 
-export function writeCachedPrayers(prayers) {
+export function writeCachedPrayers(prayers, cityId) {
   try {
     localStorage.setItem("prayers", JSON.stringify(prayers));
     localStorage.setItem("prayersDate", todayKey());
     localStorage.setItem("prayersTz", "UTC");
+    localStorage.setItem("prayersCity", String(cityId));
   } catch {
     /* ignore storage errors */
   }
@@ -181,6 +184,14 @@ export function writeCachedPrayers(prayers) {
 
 export function getDateKey(date = getNowUtc()) {
   return toUtcDayjs(date).format("YYYY-MM-DD");
+}
+
+export function getCalendarMonths(now = getNowUtc(), daysAfter = 30) {
+  const current = toUtcDayjs(now);
+  return [current, current.add(1, "month"), current.add(daysAfter, "day")].filter(
+    (date, index, all) =>
+      all.findIndex((other) => other.year() === date.year() && other.month() === date.month()) === index,
+  );
 }
 
 export function formatDayLabel(targetDate, nowDate = getNowUtc()) {

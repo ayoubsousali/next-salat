@@ -20,8 +20,8 @@ export default defineConfig({
         short_name: "Salat",
         start_url: "/",
         display: "standalone",
-        background_color: "#f4efe4",
-        theme_color: "#0f5c56",
+        background_color: "#f5f7f5",
+        theme_color: "#1b6157",
         icons: [
           {
             src: "/android-icon-36x36.png",

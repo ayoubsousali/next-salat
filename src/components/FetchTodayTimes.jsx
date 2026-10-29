@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import wretch from "wretch";
 import {
   cleanTiming,
+  getCalendarMonths,
   getNowUtc,
   readCachedCalendar,
   readCachedPrayers,
@@ -16,6 +17,7 @@ export default function FetchTodayTimes({
   setCalendarData,
   cities,
   setLoading,
+  refreshKey,
 }) {
   const API = import.meta.env.VITE_API_SALAT2 || "https://api.aladhan.com/v1/timings/";
   const method = 3;
@@ -35,9 +37,13 @@ export default function FetchTodayTimes({
     citiesArr?.find((city) => parseInt(city.id, 10) === parseInt(id, 10));
 
   useEffect(() => {
-    fetchPrayerTimes(cityId);
+    let active = true;
+    fetchPrayerTimes(cityId, () => active);
+    return () => {
+      active = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cityId, cities]);
+  }, [cityId, cities, refreshKey]);
 
   const parseCalendarResponse = (data) => {
     const map = {};
@@ -63,36 +69,29 @@ export default function FetchTodayTimes({
     return map;
   };
 
-  const fetchPrayerTimes = async (id) => {
+  const fetchPrayerTimes = async (id, isActive) => {
     if (!cities?.length || !id) return;
 
     const city = getLatLng(cities, id);
     if (!city || city.lat === undefined || city.lng === undefined) return;
 
     const now = getNowUtc();
-    const currentYear = now.year();
-    const currentMonth = now.month() + 1; // 1-12
-    const nextDate = now.add(1, "month");
-    const nextYear = nextDate.year();
-    const nextMonth = nextDate.month() + 1;
-
-    // 1. Try reading from cache first for instant response
-    const cachedCurrent = readCachedCalendar(id, currentYear, currentMonth);
-    const cachedNext = readCachedCalendar(id, nextYear, nextMonth);
-    const initialMap = {
-      ...(cachedCurrent || {}),
-      ...(cachedNext || {}),
-    };
+    const months = getCalendarMonths(now);
+    const initialMap = Object.assign(
+      {},
+      ...months.map((date) => readCachedCalendar(id, date.year(), date.month() + 1) || {}),
+    );
 
     const currentTodayKey = todayKey(now);
     if (Object.keys(initialMap).length > 0) {
+      if (!isActive()) return;
       setCalendarData?.((prev) => ({ ...prev, ...initialMap }));
       if (initialMap[currentTodayKey]?.timings) {
         setPrayers(initialMap[currentTodayKey].timings);
       }
     } else {
-      const savedPrayers = readCachedPrayers();
-      if (savedPrayers && Object.keys(savedPrayers).length > 0) {
+      const savedPrayers = readCachedPrayers(id);
+      if (isActive() && Object.keys(savedPrayers).length > 0) {
         setPrayers(savedPrayers);
       }
     }
@@ -101,7 +100,7 @@ export default function FetchTodayTimes({
       setLoading?.(true);
       const tuneParams = `${t.Imsak},${t.Fajr},${t.Sunrise},${t.Dhuhr},${t.Asr},${t.Maghrib},${t.Sunset},${t.Isha},${t.Midnight}`;
 
-      // Fetch current month and next month
+      // Cover the entire selectable range, including a third month near month-end.
       const fetchMonth = async (yr, mo) => {
         const url = new URL(`https://api.aladhan.com/v1/calendar/${yr}/${mo}`);
         url.searchParams.set("latitude", city.lat);
@@ -116,33 +115,33 @@ export default function FetchTodayTimes({
         return map;
       };
 
-      const [currentMap, nextMap] = await Promise.all([
-        fetchMonth(currentYear, currentMonth).catch(() => ({})),
-        fetchMonth(nextYear, nextMonth).catch(() => ({})),
-      ]);
-
-      const merged = { ...currentMap, ...nextMap };
+      const maps = await Promise.all(
+        months.map((date) => fetchMonth(date.year(), date.month() + 1).catch(() => ({}))),
+      );
+      if (!isActive()) return;
+      const merged = Object.assign({}, ...maps);
 
       if (Object.keys(merged).length > 0) {
         setCalendarData?.((prev) => ({ ...prev, ...merged }));
         if (merged[currentTodayKey]?.timings) {
           setPrayers(merged[currentTodayKey].timings);
-          writeCachedPrayers(merged[currentTodayKey].timings);
+          writeCachedPrayers(merged[currentTodayKey].timings, id);
         }
-      } else {
-        await fetchSingleDayFallback(city, currentTodayKey, tuneParams);
+      }
+      if (!merged[currentTodayKey]?.timings && !initialMap[currentTodayKey]?.timings) {
+        await fetchSingleDayFallback(city, id, currentTodayKey, tuneParams, isActive);
       }
     } catch {
       const tuneParams = `${t.Imsak},${t.Fajr},${t.Sunrise},${t.Dhuhr},${t.Asr},${t.Maghrib},${t.Sunset},${t.Isha},${t.Midnight}`;
-      await fetchSingleDayFallback(city, currentTodayKey, tuneParams);
+      if (isActive()) await fetchSingleDayFallback(city, id, currentTodayKey, tuneParams, isActive);
     } finally {
-      setLoading?.(false);
+      if (isActive()) setLoading?.(false);
     }
   };
 
-  const fetchSingleDayFallback = async (city, dateKey, tuneParams) => {
+  const fetchSingleDayFallback = async (city, id, dateKey, tuneParams, isActive) => {
     try {
-      const dateFormatted = getNowUtc().format("DD-MM-YYYY");
+      const dateFormatted = dateKey.split("-").reverse().join("-");
       const url = new URL(`${API}${dateFormatted}`);
       url.searchParams.set("latitude", city.lat);
       url.searchParams.set("longitude", city.lng);
@@ -151,6 +150,7 @@ export default function FetchTodayTimes({
       url.searchParams.set("timezonestring", "UTC");
 
       const response = await wretch(url.toString()).get().json();
+      if (!isActive()) return;
       const { timings, date } = response.data || {};
       if (timings) {
         const newPrayers = {
@@ -162,7 +162,7 @@ export default function FetchTodayTimes({
           Isha: cleanTiming(timings.Isha),
         };
         setPrayers(newPrayers);
-        writeCachedPrayers(newPrayers);
+        writeCachedPrayers(newPrayers, id);
 
         setCalendarData?.((prev) => ({
           ...prev,
@@ -174,10 +174,9 @@ export default function FetchTodayTimes({
         }));
       }
     } catch {
-      const savedPrayers = readCachedPrayers();
-      if (savedPrayers && Object.keys(savedPrayers).length > 0) {
-        setPrayers(savedPrayers);
-      }
+      if (!isActive()) return;
+      const savedPrayers = readCachedPrayers(id);
+      if (Object.keys(savedPrayers).length > 0) setPrayers(savedPrayers);
     }
   };
 

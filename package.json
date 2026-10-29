@@ -6,13 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test"
   },
   "dependencies": {
     "@vercel/analytics": "^0.1.8",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.5",
-    "framer-motion": "^12.23.26",
     "lucide-react": "^0.562.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

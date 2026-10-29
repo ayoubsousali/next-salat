@@ -1,113 +1,45 @@
-import { motion } from "framer-motion";
 import arabicName, { pad2, splitCountdown } from "../Utils";
-import { PrayerIcon } from "./PrayerIcon";
 
-function CountUnit({ value, label }) {
-  return (
-    <div className="flex min-w-[3.25rem] flex-col items-center min-[380px]:min-w-[3.75rem]">
-      <span className="font-time text-2xl font-semibold leading-none tracking-wide min-[380px]:text-3xl sm:text-4xl">
-        {pad2(value)}
-      </span>
-      <span className="mt-1.5 text-[10px] text-white/70 min-[380px]:text-xs">{label}</span>
-    </div>
-  );
-}
-
-export default function NextPrayerHero({
-  name,
-  time,
-  remaining,
-  progress,
-  isToday = true,
-  selectedDayLabel,
-  onResetToday,
-}) {
+export default function NextPrayerHero({ name, time, remaining, progress, loading, onRetry }) {
   if (!name || !time) {
+    if (loading) return <div className="hero-wash h-36 animate-pulse rounded-2xl" aria-hidden="true" />;
     return (
-      <div className="hero-wash h-48 animate-pulse rounded-3xl shadow-hero min-[400px]:h-56 lg:h-[22rem]" />
+      <section className="hero-wash flex min-h-[9rem] items-center justify-between gap-3 rounded-2xl px-5 text-white" role="status">
+        <p className="text-sm">المواقيت غير متاحة</p>
+        <button type="button" onClick={onRetry} className="min-h-11 shrink-0 rounded-xl border border-white/40 px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+          إعادة المحاولة
+        </button>
+      </section>
     );
   }
 
   const { h, m, s } = splitCountdown(remaining);
-  const arabic = arabicName(name);
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45 }}
-      aria-live="polite"
-      className="hero-wash relative overflow-hidden rounded-3xl p-3.5 text-white shadow-hero min-[400px]:p-5 sm:p-7 lg:min-h-[22rem] lg:p-8"
-    >
-      <div className="pointer-events-none absolute -left-10 top-6 h-32 w-32 rounded-full border border-white/10" />
-      <div className="pointer-events-none absolute -left-4 top-14 h-20 w-20 rounded-full border border-amber-200/20" />
-
-      {/* Non-today contextual banner */}
-      {!isToday && (
-        <div className="relative mb-3 flex items-center justify-between rounded-xl bg-white/10 px-3 py-1.5 backdrop-blur-sm">
-          <div className="flex items-center gap-1.5 text-xs text-amber-200">
-            <span>تستعرض جدول:</span>
-            <span className="font-semibold text-white">{selectedDayLabel}</span>
-          </div>
-          {onResetToday && (
-            <button
-              type="button"
-              onClick={onResetToday}
-              className="inline-flex items-center gap-1 rounded-lg bg-white/15 px-2 py-0.5 text-[11px] font-medium text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-200"
-            >
-              <span>العودة لليوم</span>
-              <span>↺</span>
-            </button>
-          )}
-        </div>
-      )}
-
-      <div className="relative flex h-full flex-col justify-between gap-3 min-[400px]:gap-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-medium tracking-wide text-amber-200/90 min-[400px]:text-xs">
-              {isToday ? "الصلاة التالية" : "الصلاة التالية (اليوم)"}
-            </p>
-            <h2 className="mt-1 text-3xl leading-tight min-[400px]:text-4xl lg:text-5xl">
-              {arabic}
-            </h2>
-          </div>
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm min-[400px]:h-12 min-[400px]:w-12">
-            <PrayerIcon name={name} onDark className="h-6 w-6 text-amber-200" />
-          </div>
-        </div>
-
-        <p className="font-time text-4xl font-semibold leading-none min-[400px]:text-5xl lg:text-6xl">
+    <section className="hero-wash rounded-2xl px-5 py-5 text-white sm:px-6 sm:py-6">
+      <p className="text-xs text-white/75">الصلاة القادمة</p>
+      <div className="mt-2 flex items-baseline justify-between gap-3">
+        <h2 className="text-3xl leading-tight sm:text-4xl">{arabicName(name)}</h2>
+        <time dateTime={time} className="font-time shrink-0 text-2xl font-semibold sm:text-3xl">
           {time}
-        </p>
-
-        <div>
-          <p className="mb-2 text-[11px] text-white/70 min-[400px]:text-xs">متبقي للأذان</p>
-          <div className="flex items-end gap-1 min-[380px]:gap-2">
-            <CountUnit value={h} label="ساعة" />
-            <span className="mb-5 text-xl text-white/40">:</span>
-            <CountUnit value={m} label="دقيقة" />
-            <span className="mb-5 hidden text-xl text-white/40 min-[360px]:inline">:</span>
-            <div className="hidden min-[360px]:block">
-              <CountUnit value={s} label="ثانية" />
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div className="relative h-2 rounded-full bg-white/25">
-            <motion.div
-              className="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-amber-200 to-teal-300"
-              initial={false}
-              animate={{ width: `${Math.max(2, Math.round(progress * 100))}%` }}
-              transition={{ duration: 0.4 }}
-            />
-          </div>
-          <p className="mt-2 hidden text-[11px] text-white/55 min-[400px]:block">
-            تقدم الوقت حتى الصلاة التالية
-          </p>
-        </div>
+        </time>
       </div>
-    </motion.section>
+      <div className="mt-5 flex items-center justify-between gap-3 text-sm text-white/85">
+        <span>متبقي</span>
+        <span
+          className="font-time font-semibold text-white"
+          role="timer"
+          aria-label={`${h} ساعة و ${m} دقيقة و ${s} ثانية`}
+        >
+          {pad2(h)}:{pad2(m)}:{pad2(s)}
+        </span>
+      </div>
+      <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/25" aria-hidden="true">
+        <div
+          className="h-full rounded-full bg-white/85 transition-[width] duration-500"
+          style={{ width: `${Math.max(2, Math.round(progress * 100))}%` }}
+        />
+      </div>
+    </section>
   );
 }

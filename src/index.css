@@ -10,31 +10,28 @@
 @tailwind utilities;
 
 :root {
-  --canvas: #f4efe4;
-  --canvas-2: #ebe4d4;
-  --ink: #142824;
-  --muted: #5b6b66;
-  --accent: #0f5c56;
-  --gold: #c4a35a;
-  --hero-from: #0c3d38;
-  --hero-to: #071c1a;
+  --canvas: #f5f7f5;
+  --ink: #182e29;
+  --muted: #66756f;
+  --accent: #1b6157;
+  --hero-from: #276e62;
+  --hero-to: #123e39;
   color-scheme: light;
 }
 
 .dark {
-  --canvas: #06110f;
-  --canvas-2: #0b1a17;
-  --ink: #e8f0ed;
-  --muted: #9bb0aa;
-  --accent: #2dd4bf;
-  --gold: #d4b56a;
-  --hero-from: #0a2f2b;
-  --hero-to: #041210;
+  --canvas: #101b19;
+  --ink: #e7efeb;
+  --muted: #a2b1a9;
+  --accent: #65b4a1;
+  --hero-from: #20594f;
+  --hero-to: #12332f;
   color-scheme: dark;
 }
 
 html {
   height: 100%;
+  overscroll-behavior-y: contain;
 }
 
 body {
@@ -60,16 +57,8 @@ body {
   letter-spacing: 0.04em;
 }
 
-.zellij-bg {
-  background-image: url("/zellij.png");
-  background-size: 420px;
-}
-
 .hero-wash {
-  background-image:
-    radial-gradient(circle at 18% 20%, rgba(212, 181, 106, 0.22), transparent 42%),
-    radial-gradient(circle at 88% 86%, rgba(45, 212, 191, 0.16), transparent 46%),
-    linear-gradient(160deg, var(--hero-from), var(--hero-to));
+  background: linear-gradient(135deg, var(--hero-from), var(--hero-to));
 }
 
 @media (prefers-reduced-motion: reduce) {

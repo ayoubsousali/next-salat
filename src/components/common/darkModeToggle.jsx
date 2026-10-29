@@ -24,10 +24,10 @@ export default function DarkModeToggle() {
 
     if (theme === "dark") {
       root.classList.add("dark");
-      themeColorMeta?.setAttribute("content", "#06110f");
+      themeColorMeta?.setAttribute("content", "#101b19");
     } else {
       root.classList.remove("dark");
-      themeColorMeta?.setAttribute("content", "#f4efe4");
+      themeColorMeta?.setAttribute("content", "#f5f7f5");
     }
   }, [theme]);
 
@@ -46,7 +46,7 @@ export default function DarkModeToggle() {
       title={isDark ? "الوضع النهاري" : "الوضع الليلي"}
       aria-pressed={isDark}
       aria-label={isDark ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي"}
-      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-black/5 bg-white/70 text-teal-800 shadow-sm backdrop-blur-md transition-colors hover:bg-white dark:border-white/10 dark:bg-white/10 dark:text-amber-300 dark:hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/60"
+      className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-black/5 hover:text-ink dark:hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/60"
     >
       {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
     </button>

@@ -2,8 +2,7 @@ import { Github } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="mt-6 flex flex-col items-center gap-2 pb-2 text-center sm:mt-8">
-      <p className="text-xs text-muted sm:text-sm">تقبل الله صلاتكم</p>
+    <footer className="mt-4 flex justify-center pb-1">
       <a
         href="https://github.com/ayoubsousali/next-salat"
         target="_blank"
@@ -12,7 +11,7 @@ export default function Footer() {
         title="عرض الشفرة على Github"
         aria-label="عرض الشفرة على Github"
       >
-        <Github className="h-5 w-5" />
+        <Github className="h-4 w-4" />
       </a>
     </footer>
   );
